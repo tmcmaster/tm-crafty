@@ -1,0 +1,34 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`tm-crafty`
+
+
+@demo demo/index.html 
+-->
+
+<dom-module id="tm-crafty">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <h2>Hello [[prop1]]</h2>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'tm-crafty',
+
+      properties: {
+        prop1: {
+          type: String,
+          value: 'tm-crafty',
+        },
+      },
+
+    });
+  </script>
+</dom-module>
