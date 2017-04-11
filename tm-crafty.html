@@ -1,34 +1,144 @@
-<link rel="import" href="../polymer/polymer.html">
-
+<link rel="import" href="elements.html">
 <!--
 `tm-crafty`
 
 
-@demo demo/index.html 
+@demo demo/index.html
 -->
 
 <dom-module id="tm-crafty">
   <template>
     <style>
       :host {
-        display: block;
+        display: inline-block;
       }
     </style>
-    <h2>Hello [[prop1]]</h2>
+    <tm-crafty-app id="crafty" width="800" height="800" gravity-const="30">
+      <tm-crafty-block x="1" y="1" draggable gravity></tm-crafty-block>
+      <tm-crafty-block x="1" y="2" gravity gravity-const="100"></tm-crafty-block>
+      <tm-crafty-block x="4" y="7" solid></tm-crafty-block>
+    </tm-crafty-app>
+    <div id="game" class="bbb"></div>
   </template>
 
   <script>
-    Polymer({
+    (function() {
+      Polymer({
 
-      is: 'tm-crafty',
+        is: 'tm-crafty',
 
-      properties: {
-        prop1: {
-          type: String,
-          value: 'tm-crafty',
+        properties: {
+          prop1: {
+            type: String,
+            value: 'tm-crafty',
+          },
         },
-      },
+        ready: function() {
+          const iso = this.$.crafty.getISO();
+          //test5(iso);
+        }
+      });
 
-    });
+      function test6() {
+        Crafty.init(1000,1000, 'game');
+        var iso = Crafty.isometric.size(128);
+        Crafty.sprite("../block.png", {block:[1,0,128,128]});
+        for (var y=0; y<10; y++) {
+          for (var x=0; x<3; x++) {
+            iso.place(x,y+6, 0,createBlock(false).addComponent('solid'));
+          }
+        }
+        iso.place(1,0, 0,createBlock(false).addComponent('Gravity').gravity('solid'));
+      }
+
+      function test5(iso) {
+        Crafty.init(1000,1000, 'game');
+        //var iso = Crafty.isometric.size(128);
+        Crafty.sprite("../block.png", {block:[1,0,128,128]});
+        var b1 = createBlock(false);
+        var b2 = createBlock(false);
+        var b3 = createBlock(false).addComponent('Gravity').gravityConst(-30).gravity('Floor');
+        iso.place(2, 3, 0, b1);
+        iso.place(2, 6, 0, b2);
+        iso.place(1, 6, 0, b3);
+
+        setTimeout(function() {
+          b3.gravityConst(30);
+        }, 2000);
+
+        setTimeout(function() {
+          b3.gravityConst(-30);
+        }, 8000);
+
+        setTimeout(function() {
+          b3.antigravity()
+        }, 17000);
+
+
+      }
+
+      function createBlock(gravity) {
+        var mixins = "2D, DOM, block,Gravity";
+        if (gravity) {
+          mixins += ',Gravity';
+        }
+        var block = Crafty.e(mixins);
+        if (gravity) {
+          block.gravity('Floor');
+        }
+        return block;
+      }
+
+      function test4() {
+        Crafty.init(500,350, 'game');
+        var iso = Crafty.isometric.size(128);
+        iso.place(2, 2, 0, Crafty.e('2D, DOM, Color,Draggable').color('green').attr({w:128, h:128}));
+
+      }
+
+      function test3() {
+        Crafty.init(1000,1000, 'game');
+        var iso = Crafty.diamondIso.init(128,96,40,40);
+        //var iso = Crafty.isometric.size(128,128)
+        Crafty.sprite("../block2.png", {block:[1,0,128,96]});
+        var b1 = Crafty.e("2D, DOM, block");
+        var b2 = Crafty.e("2D, DOM, block");
+        var b3 = Crafty.e("2D, DOM, block");
+        iso.place(b1,3,0,0);
+        iso.place(b2,2,1,0);
+        iso.place(b3,2,0,0);
+        //iso.place(Crafty.e('2D, Canvas, Color').color('red').attr({w:128, h:128}),2,1,2);
+      }
+
+      function test1() {
+        Crafty.init(500,350, 'game');
+
+        const ent = Crafty.e('Floor, 2D, Canvas, Color, Draggable, AngularMotion, DebugRectangle')
+          .attr({x: 0, y: 250, w: 250, h: 10})
+          .color('green');
+
+        ent.arotation = 5;
+
+        Crafty.e('2D, Canvas, Color, Twoway,Gravity')
+          .attr({x: 20, y: 0, w: 50, h: 50})
+          .color('#F00')
+          .twoway(200)
+          .gravity('Floor');
+
+        setTimeout(function() {
+          ent.resetAngularMotion();
+        }, 5000);
+      }
+      function test2() {
+        Crafty.init(500,350, 'game');
+        var iso = Crafty.isometric.size(128,96).centerAt(10,10); //Viewport is now moved
+        var area = iso.area(); //get the area
+        for(var y = area.y.start;y <= area.y.end;y++){
+          for(var x = area.x.start ;x <= area.x.end;x++){
+              iso.place(x,y,0,Crafty.e("2D,DOM,gras")); //Display tiles in the Screen
+          }
+        }
+      }
+    })(Polymer,Crafty);
   </script>
 </dom-module>

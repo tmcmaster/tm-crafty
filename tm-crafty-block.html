@@ -1,0 +1,92 @@
+<dom-module id="tm-crafty-block">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+  </template>
+  <script>
+    (function(Polymer) {
+      Polymer({
+        is: 'tm-crafty-block',
+        properties: {
+          app: { type: Object, notify: true},
+          block: { type: Object, notify: true },
+          x: { type: Number, notify: true },
+          y: { type: Number, notify: true },
+          draggable: { type: Boolean, notify: true },
+          gravity: { type: Boolean, notify: true },
+          solid: { type: Boolean, notify: true },
+          gravityConst: { type: Number, notify: true, value: 30 }
+        },
+        observers: [
+          'debug(draggable)',
+          '_placeBlock(x,y,app)',
+          '_setDraggable(block,draggable)',
+          '_setSolid(block,solid)',
+          '_setGravity(block,gravity,gravityConst)'
+        ],
+        _placeBlock: function(x,y,app) {
+          if (x !== undefined && y !== undefined && app !== undefined) {
+            const block = Crafty.e("2D, Canvas, block");
+            app.iso.place(x, y, 0, block);
+            this.block = block;
+          }
+        },
+        _setDraggable: function(block,draggable) {
+          if (draggable) {
+            block.addComponent('Draggable');
+
+            // block.one('ExitFrame', function(e) {
+            //   console.log('EnterFrame: ', e);
+            // });
+          }
+        },
+        _setSolid: function(block,solid) {
+          if (solid) {
+            block.addComponent('solid');
+          }
+        },
+        _generateGravityConst: function() {
+          if (this.gravity && this.gravityConst !== undefined) {
+            return this.gravityConst;
+          } else if (this.app.gravityConst !== undefined) {
+            return this.app.gravityConst
+          } else {
+            return 30;
+          }
+        },
+        _setGravity: function(block, gravity, gravityConst) {
+          if (gravity === true) {
+            if (!block.has('Gravity')) {
+              block.addComponent('Gravity');
+              block.gravity('solid');
+            }
+            block.gravityConst(this._generateGravityConst());
+          } else {
+            block.removeComponent('Gravity');
+          }
+        },
+        debug: function(object) {
+          console.log('DEBUG: ', object);
+        },
+        ready: function() {
+          console.log('Element tm-crafty-block has been created.');
+        }
+      });
+
+      function createBlock(gravity) {
+        var mixins = "2D, DOM, block,Gravity";
+        if (gravity) {
+          mixins += ',Gravity';
+        }
+        var block = Crafty.e(mixins);
+        if (gravity) {
+          block.gravity('Floor');
+        }
+        return block;
+      }
+    })(window.Polymer);
+  </script>
+</dom-module>

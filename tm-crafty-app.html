@@ -1,0 +1,67 @@
+<dom-module id="tm-crafty-app">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+        border:solid red 1px;
+      }
+      div {
+        display: inline-block;
+        border: solid red 1px;
+      }
+    </style>
+    <div id="game" class="aaa"></div>
+    <content/>
+  </template>
+  <script>
+    (function(Polymer, Crafty) {
+      Polymer({
+        is: 'tm-crafty-app',
+        properties: {
+          width: { type:Number, notify:true },
+          height: { type:Number, notify:true },
+          gravity: { type: Number, notify: true }
+        },
+        observers: [
+          'debug(prop)',
+          '_setGravity(gravity)'
+        ],
+        _setGravity: function(gravity) {
+          const self = this;
+          this.querySelectorAll('tm-crafty-block').forEach(function(element) {
+            element.gravityConst = self.gravityConst;
+          });
+        },
+        getISO: function() {
+          return this.iso;
+        },
+        debug: function(object) {
+          console.log(object);
+        },
+        ready: function() {
+          console.log('Element tm-crafty-app has been created.');
+          Crafty.init(this.width,this.height, this.$.game);
+          Crafty.sprite("../block.png", {block:[1,0,128,128]});
+          this.iso = Crafty.isometric.size(128);
+          const self = this;
+          self.querySelectorAll('tm-crafty-block').forEach(function(element) {
+            element.app = self;
+          });
+        }
+      });
+
+      function createBlock(gravity) {
+        var mixins = "2D, DOM, block,Gravity";
+        if (gravity) {
+          mixins += ',Gravity';
+        }
+        var block = Crafty.e(mixins);
+        if (gravity) {
+          block.gravity('Floor');
+        }
+        //block.attr({x:1,y,1});
+        return block;
+      }
+    })(window.Polymer, window.Crafty);
+  </script>
+</dom-module>
