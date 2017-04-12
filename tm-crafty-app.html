@@ -1,13 +1,14 @@
+<link rel="import" href="elements.html">
+
 <dom-module id="tm-crafty-app">
   <template>
     <style>
       :host {
         display: inline-block;
-        border:solid red 1px;
       }
       div {
         display: inline-block;
-        border: solid red 1px;
+        border: solid lightgrey 1px;
       }
     </style>
     <div id="game" class="aaa"></div>
@@ -41,7 +42,7 @@
         ready: function() {
           console.log('Element tm-crafty-app has been created.');
           Crafty.init(this.width,this.height, this.$.game);
-          Crafty.sprite("../block.png", {block:[1,0,128,128]});
+          Crafty.sprite("../images/block.png", {block:[1,0,128,128]});
           this.iso = Crafty.isometric.size(128);
           const self = this;
           self.querySelectorAll('tm-crafty-block').forEach(function(element) {

@@ -23,9 +23,13 @@
     <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
 
     <link rel="import" href="../../bower_components/polymer/polymer.html">
-    <link rel="import" href="../tm-crafty.html">
+    <link rel="import" href="../elements.html">
   </head>
   <body unresolved>
-    <tm-crafty></tm-crafty>
+    <tm-crafty-app id="crafty" width="800" height="800" gravity-const="30">
+      <tm-crafty-block x="1" y="1" draggable></tm-crafty-block>
+      <tm-crafty-block x="1" y="2" gravity></tm-crafty-block>
+      <tm-crafty-block x="4" y="7" solid></tm-crafty-block>
+    </tm-crafty-app>
   </body>
 </html>
