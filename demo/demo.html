@@ -24,12 +24,107 @@
 
     <link rel="import" href="../../bower_components/polymer/polymer.html">
     <link rel="import" href="../elements.html">
+
+    <dom-module id="tm-demo">
+      <template>
+        <style>
+          :host {
+            display: block;
+          }
+        </style>
+
+        <tm-crafty-app id="crafty" width="800" height="800" gravity="30" assets="[[assets]]">
+          <!-- <tm-crafty-block x="1" y="1" draggable type="block"></tm-crafty-block>
+          <tm-crafty-block x="1" y="2" type="sheep_east_1"></tm-crafty-block>
+          <tm-crafty-block x="4" y="7" solid type="block"></tm-crafty-block> -->
+
+          <tm-crafty-block x="3" y="3" type="llama_north_1"></tm-crafty-block>
+          <tm-crafty-block x="4" y="3" type="llama_east_1"></tm-crafty-block>
+          <tm-crafty-block x="3" y="4" type="llama_south_1"></tm-crafty-block>
+          <tm-crafty-block x="4" y="4" gravity type="llama_west_1"></tm-crafty-block>
+        </tm-crafty-app>
+
+      </template>
+      <script>
+        (function(Polymer) {
+          Polymer({
+            is: 'tm-demo',
+            properties: {
+              assets: { type:Object, notify:true, value: {
+                '../images/llama_walk.png' : {
+                  tile : 128,
+                  tileh: 128,
+                  map: {
+                    'llama_north_1' : [0,0],
+                    'llama_west_1' : [0,1],
+                    'llama_south_1' : [0,2],
+                    'llama_east_1' : [0,3]
+                  }
+                },
+                '../images/sheep_walk.png' : {
+                  tile : 128,
+                  tileh: 128,
+                  map: {
+                    'sheep_north_1' : [0,0],
+                    'sheep_west_1' : [0,1],
+                    'sheep_south_1' : [0,2],
+                    'sheep_east_1' : [0,3]
+                  }
+                },
+                '../images/chicken_walk.png' : {
+                  tile : 32,
+                  tileh: 32,
+                  map: {
+                    'chicken_north_1' : [0,0],
+                    'chicken_west_1' : [0,1],
+                    'chicken_south_1' : [0,2],
+                    'chicken_east_1' : [0,3]
+                  }
+                },
+                '../images/cow_walk.png' : {
+                  tile : 128,
+                  tileh: 128,
+                  map: {
+                    'cow_north_1' : [0,0],
+                    'cow_west_1' : [0,1],
+                    'cow_south_1' : [0,2],
+                    'cow_east_1' : [0,3]
+                  }
+                },
+                '../images/pig_walk.png' : {
+                  tile : 128,
+                  tileh: 128,
+                  map: {
+                    'pig_north_1' : [0,0],
+                    'pig_west_1' : [0,1],
+                    'pig_south_1' : [0,2],
+                    'pig_east_1' : [0,3]
+                  }
+                },
+                '../images/block.png' : {
+                  tile : 128,
+                  tileh: 128,
+                  map: {
+                    'block' : [0,0]
+                  }
+                }
+              }}
+            },
+            observers: [
+              'debug(assets)'
+            ],
+            debug: function(object) {
+              console.log(object);
+            },
+            ready: function() {
+              console.log('Element tm-demo has been created.');
+            }
+          });
+        })(window.Polymer);
+      </script>
+    </dom-module>
   </head>
   <body unresolved>
-    <tm-crafty-app id="crafty" width="800" height="800" gravity-const="30">
-      <tm-crafty-block x="1" y="1" draggable></tm-crafty-block>
-      <tm-crafty-block x="1" y="2" gravity></tm-crafty-block>
-      <tm-crafty-block x="4" y="7" solid></tm-crafty-block>
-    </tm-crafty-app>
+    <tm-demo/>
   </body>
 </html>

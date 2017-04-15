@@ -11,7 +11,7 @@
         border: solid lightgrey 1px;
       }
     </style>
-    <div id="game" class="aaa"></div>
+    <div id="game"></div>
     <content/>
   </template>
   <script>
@@ -21,16 +21,40 @@
         properties: {
           width: { type:Number, notify:true },
           height: { type:Number, notify:true },
-          gravity: { type: Number, notify: true }
+          gravity: { type: Number, notify: true },
+          assets: { type: Object, notify: true }
         },
         observers: [
           'debug(prop)',
-          '_setGravity(gravity)'
+          '_setGravity(gravity)',
+          '_loadAssets(assets)'
         ],
+        listeners: {
+          'tm-crafty-block-created': '_blockCreated'
+        },
+        _blockCreated: function(e) {
+          console.log('-----# Block Created: ', e);
+          //e.detail.app = this;
+          const block = e.detail.block;
+          const x = e.detail.x;
+          const y = e.detail.y;
+          this.iso.place(x, y, 0, block);
+        },
         _setGravity: function(gravity) {
           const self = this;
           this.querySelectorAll('tm-crafty-block').forEach(function(element) {
-            element.gravityConst = self.gravityConst;
+            element.gravityConst = self.gravity;
+          });
+        },
+        _loadAssets: function(assets) {
+          Crafty.load({
+            sprites : assets
+          }, function() {
+            console.log('TM-CRAFTY-APP: Sprites have been loaded.');
+          },function(e) {
+            console.log('TM-CRAFTY-APP: Sprite has been loaded: ', e);
+          },function(e) {
+            console.log('TM-CRAFTY-APP: There was a problem loading sprites.', e);
           });
         },
         getISO: function() {
@@ -45,9 +69,10 @@
           Crafty.sprite("../images/block.png", {block:[1,0,128,128]});
           this.iso = Crafty.isometric.size(128);
           const self = this;
-          self.querySelectorAll('tm-crafty-block').forEach(function(element) {
-            element.app = self;
-          });
+          // this.addEventListener('tm-crafty-block-created', function(element) {
+          //   console.log('------ Block Created: ', element.detail);
+          //   element.detail.app = self;
+          // });
         }
       });
 

@@ -14,6 +14,7 @@
         is: 'tm-crafty-block',
         properties: {
           app: { type: Object, notify: true},
+          type: { type: String, notify: true, observer: '_typeChanged' },
           block: { type: Object, notify: true },
           x: { type: Number, notify: true },
           y: { type: Number, notify: true },
@@ -24,25 +25,24 @@
         },
         observers: [
           'debug(draggable)',
-          '_placeBlock(x,y,app)',
           '_setDraggable(block,draggable)',
           '_setSolid(block,solid)',
           '_setGravity(block,gravity,gravityConst)'
         ],
-        _placeBlock: function(x,y,app) {
-          if (x !== undefined && y !== undefined && app !== undefined) {
-            const block = Crafty.e("2D, Canvas, block");
-            app.iso.place(x, y, 0, block);
-            this.block = block;
+        _typeChanged: function(newType,oldType) {
+          console.log('Block type changed: ', oldType, newType);
+          if (this.block !== undefined) {
+            if (newType !== undefined && newType !== '') {
+              if (oldType !== undefined && oldType !== '') {
+                this.block.removeComponent(oldType);
+              }
+              this.block.addComponent(newType);
+            }
           }
         },
         _setDraggable: function(block,draggable) {
           if (draggable) {
             block.addComponent('Draggable');
-
-            // block.one('ExitFrame', function(e) {
-            //   console.log('EnterFrame: ', e);
-            // });
           }
         },
         _setSolid: function(block,solid) {
@@ -75,6 +75,12 @@
         },
         ready: function() {
           console.log('Element tm-crafty-block has been created.');
+          //this.parentElement._onBlockCreation(this);
+          this.block = Crafty.e("2D, Canvas");
+          if (this.type !== undefined && this.type !== '') {
+            this.block.addComponent(this.type);
+          }
+          this.fire('tm-crafty-block-created', this);
         }
       });
 
