@@ -13,32 +13,103 @@
       Polymer({
         is: 'tm-crafty-block',
         properties: {
-          app: { type: Object, notify: true},
+          assets: { type: Boolean, notify: true, value: false },
+          //app: { type: Object, notify: true},
           type: { type: String, notify: true, observer: '_typeChanged' },
           block: { type: Object, notify: true },
           x: { type: Number, notify: true },
           y: { type: Number, notify: true },
           draggable: { type: Boolean, notify: true },
+          moveable: { type: Boolean, notify: true },
           gravity: { type: Boolean, notify: true },
           solid: { type: Boolean, notify: true },
+          direction: { type: String, notify: true },
           gravityConst: { type: Number, notify: true, value: 30 }
+        },
+        listeners: {
+          'tm-crafty-assets-loaded': '_assetsLoaded'
         },
         observers: [
           'debug(draggable)',
           '_setDraggable(block,draggable)',
+          '_setType(block,assets,type)',
+          '_setMoveable(block,moveable)',
           '_setSolid(block,solid)',
-          '_setGravity(block,gravity,gravityConst)'
+          '_setGravity(block,gravity,gravityConst)',
+          '_directionChanged(block,direction)'
         ],
+        _assetsLoaded: function() {
+          console.log('Block can now be created.');
+        },
+        _directionChanged: function(block,direction) {
+
+        },
+        _setType: function(block,assets,type) {
+          if (assets) {
+            block.addComponent(type);
+            const collision = this._getCollision(type);
+            if (collision) {
+              block.addComponent('WiredHitBox,Collision')
+                .debugStroke('red')
+                .collision(collision);
+            }
+          }
+        },
         _typeChanged: function(newType,oldType) {
           console.log('Block type changed: ', oldType, newType);
-          if (this.block !== undefined) {
+          if (this.block !== undefined && this.assets) {
             if (newType !== undefined && newType !== '') {
               if (oldType !== undefined && oldType !== '') {
                 this.block.removeComponent(oldType);
               }
-              this.block.addComponent(newType);
+              this._setType(this.block,this.assets,newType);
             }
           }
+        },
+        _setMoveable: function(block,moveable) {
+          if (moveable) {
+            block.addComponent('Fourway,Collision')
+                  .fourway(200).checkHits('solid');
+            block.bind('Moved', function(evt) {
+              console.log('------ DIR: ', evt);
+              var hitDatas, hitData;
+              hitDatas = this.hit('solid')
+              if (hitDatas) {
+                console.log('COLISION: ', (hitDatas ? hitDatas[0].overlap : null));
+                hitData = hitDatas[0];
+                if (hitData.type === 'SAT') {
+                  this.x -= hitData.overlap * hitData.normal.x;
+                  this.y -= hitData.overlap * hitData.normal.y;
+                } else {
+                  this[evt.axis] = evt.oldValue;
+                }
+              }
+            });
+          }
+        },
+        _calculateDirection: function(axis, oldValue) {
+          var dir = undefined;
+          if (axis === 'y') {
+            if (oldValue < this.y) {
+              dir = 'north';
+            } else if (oldValue > this.y) {
+              dir = 'south';
+            }
+          }
+          if (axis === 'x') {
+            if (oldValue < this.x) {
+              dir = 'west';
+            } else if (oldValue > this.x) {
+              dir = 'east';
+            }
+          }
+          if (dir !== undefined && dir !== this.direction) {
+            this.set('direction', dir);
+          }
+        },
+        _getCollision: function(type) {
+          console.log(this.parentElement.collision);
+          return this.parentElement.collision[type];
         },
         _setDraggable: function(block,draggable) {
           if (draggable) {
@@ -74,11 +145,10 @@
           console.log('DEBUG: ', object);
         },
         ready: function() {
-          console.log('Element tm-crafty-block has been created.');
-          //this.parentElement._onBlockCreation(this);
-          this.block = Crafty.e("2D, Canvas");
+          console.log('Element tm-crafty-block has been created: ');
+          this.block = Crafty.e("2D,DOM");
           if (this.type !== undefined && this.type !== '') {
-            this.block.addComponent(this.type);
+            this._typeChanged(this.type,undefined);
           }
           this.fire('tm-crafty-block-created', this);
         }

@@ -12,7 +12,7 @@
       }
     </style>
     <div id="game"></div>
-    <content/>
+    <content id="content"/>
   </template>
   <script>
     (function(Polymer, Crafty) {
@@ -22,12 +22,14 @@
           width: { type:Number, notify:true },
           height: { type:Number, notify:true },
           gravity: { type: Number, notify: true },
-          assets: { type: Object, notify: true }
+          assets: { type: Object, notify: true },
+          animate: { type: Object, notify: true },
+          collision: { type: Object, notify: true }
         },
         observers: [
           'debug(prop)',
           '_setGravity(gravity)',
-          '_loadAssets(assets)'
+            '_loadAssets(assets)'
         ],
         listeners: {
           'tm-crafty-block-created': '_blockCreated'
@@ -38,7 +40,8 @@
           const block = e.detail.block;
           const x = e.detail.x;
           const y = e.detail.y;
-          this.iso.place(x, y, 0, block);
+          block.attr({x:x*128,y:y*128});
+          //this.iso.place(x, y, 0, block);
         },
         _setGravity: function(gravity) {
           const self = this;
@@ -47,10 +50,15 @@
           });
         },
         _loadAssets: function(assets) {
+          console.log('Loading Assets');
+          const self = this;
           Crafty.load({
             sprites : assets
           }, function() {
             console.log('TM-CRAFTY-APP: Sprites have been loaded.');
+            self.querySelectorAll('tm-crafty-block').forEach(function(element) {
+              element.assets = true;
+            });
           },function(e) {
             console.log('TM-CRAFTY-APP: Sprite has been loaded: ', e);
           },function(e) {
@@ -69,10 +77,20 @@
           Crafty.sprite("../images/block.png", {block:[1,0,128,128]});
           this.iso = Crafty.isometric.size(128);
           const self = this;
+
+          const ent = Crafty.e('solid, Collision,WiredHitBox, 2D, Canvas, Color, Draggable, AngularMotion, DebugRectangle')
+            .attr({x: 200, y: 350, w: 250, h: 10})
+            .debugStroke('red')
+            .color('green');
+
           // this.addEventListener('tm-crafty-block-created', function(element) {
           //   console.log('------ Block Created: ', element.detail);
           //   element.detail.app = self;
           // });
+
+          Polymer.dom( this.$.content ).observeNodes( function( info ) {
+            console.log("Child Content Added: ", info );
+          });
         }
       });
 
