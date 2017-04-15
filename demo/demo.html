@@ -33,25 +33,11 @@
           }
         </style>
 
-        <iron-ajax
-          auto
-          url="demo.json"
-          handle-as="json"
-          last-response="{{data}}"
-          on-response="_response"
-          on-error="_error"></iron-ajax>
-
-
-        <tm-crafty-app id="crafty" width="800" height="800" gravity="30" assets="[[data.assets]]" animate="[[data.animate]]" collision="[[data.collision]]" entities="[[data.enitities]]">
-          <!-- <tm-crafty-block x="1" y="1" draggable type="block"></tm-crafty-block>
-          <tm-crafty-block x="1" y="2" type="sheep_east_1"></tm-crafty-block>
-          <tm-crafty-block x="4" y="7" solid type="block"></tm-crafty-block> -->
-
-          <tm-crafty-block x="1" y="1" solid type="llama_north_1"></tm-crafty-block>
-          <tm-crafty-block x="2" y="1" solid type="llama_east_1"></tm-crafty-block>
-          <tm-crafty-block x="3" y="1" solid type="llama_south_1"></tm-crafty-block>
-          <tm-crafty-block x="4" y="1" moveable type="llama_west_1"></tm-crafty-block>
-          <!-- <tm-crafty-block x="2" y="5" animate="llama_west_walk"></tm-crafty-block> -->
+        <tm-crafty-app id="crafty" width="800" height="800" gravity="30" asset-definition="../demo/demo.json">
+          <tm-crafty-block x="1" y="1" solid type="llama" direction="north"></tm-crafty-block>
+          <tm-crafty-block x="2" y="1" solid type="llama" direction="east"></tm-crafty-block>
+          <tm-crafty-block x="3" y="1" solid type="llama" direction="south"></tm-crafty-block>
+          <tm-crafty-block x="4" y="1" moveable type="llama" direction="east"></tm-crafty-block>
         </tm-crafty-app>
 
       </template>
@@ -60,113 +46,11 @@
           Polymer({
             is: 'tm-demo',
             properties: {
-              data: {type: Object, notify: true },
-              types: { type: Object, notify: true, value: {
-                llama : {
-                  walk : {
-                    north : 'llama_walk_north',
-                    south : 'llama_walk_south',
-                    east : 'llama_walk_east',
-                    west : 'llama_walk_west',
-                  },
-                  stand: {
-                    north: 'llama_north_1',
-                    south: 'llama_south_1',
-                    east: 'llama_east_1',
-                    west: 'llama_west_1'
-                  }
-                }
-              }},
-              animate: { type: Object, notify: true, value: {
-                'llama_walk_north' : {
-                  start: 'llama_north_1',
-                  reel: [[0, 0], [1, 0], [2, 0], [3, 0]]
-                },
-                'llama_walk_west' : {
-                  start: 'llama_west_1',
-                  reel: [[0, 1], [1, 1], [2, 1], [3, 1]]
-                },
-                'llama_walk_south' : {
-                  start: 'llama_south_1',
-                  reel: [[0, 2], [1, 2], [2, 2], [3, 2]]
-                },
-                'llama_walk_east' : {
-                  start: 'llama_east_1',
-                  reel: [[0, 3], [1, 3], [2, 3], [3, 3]]
-                }
-              }},
-              collision: { type:Object, notify:true, value: {
-                'llama_west_1' : [40, 30, 90, 30, 90, 90, 40, 90],
-                'llama_south_1' : [40, 30, 90, 30, 90, 90, 40, 90],
-                'llama_east_1' : [40, 30, 90, 30, 90, 90, 40, 90],
-                'llama_north_1' : [40, 30, 90, 30, 90, 90, 40, 90]
-              }},
-              assets: { type:Object, notify:true, value: {
-                '../images/llama_walk.png' : {
-                  tile : 128,
-                  tileh: 128,
-                  map: {
-                    'llama_north_1' : [0,0],
-                    'llama_west_1' : [0,1],
-                    'llama_south_1' : [0,2],
-                    'llama_east_1' : [0,3]
-                  }
-                },
-                '../images/sheep_walk.png' : {
-                  tile : 128,
-                  tileh: 128,
-                  map: {
-                    'sheep_north_1' : [0,0],
-                    'sheep_west_1' : [0,1],
-                    'sheep_south_1' : [0,2],
-                    'sheep_east_1' : [0,3]
-                  }
-                },
-                '../images/chicken_walk.png' : {
-                  tile : 32,
-                  tileh: 32,
-                  map: {
-                    'chicken_north_1' : [0,0],
-                    'chicken_west_1' : [0,1],
-                    'chicken_south_1' : [0,2],
-                    'chicken_east_1' : [0,3]
-                  }
-                },
-                '../images/cow_walk.png' : {
-                  tile : 128,
-                  tileh: 128,
-                  map: {
-                    'cow_north_1' : [0,0],
-                    'cow_west_1' : [0,1],
-                    'cow_south_1' : [0,2],
-                    'cow_east_1' : [0,3]
-                  }
-                },
-                '../images/pig_walk.png' : {
-                  tile : 128,
-                  tileh: 128,
-                  map: {
-                    'pig_north_1' : [0,0],
-                    'pig_west_1' : [0,1],
-                    'pig_south_1' : [0,2],
-                    'pig_east_1' : [0,3]
-                  }
-                },
-                '../images/block.png' : {
-                  tile : 128,
-                  tileh: 128,
-                  map: {
-                    'block' : [0,0]
-                  }
-                }
-              }}
+              data: {type: Object, notify: true }
             },
             observers: [
               'debug(data)'
             ],
-            _response: function(e) {
-              console.log('-->> RESPONSE: ', e)
-            },
             _error: function(e) {
               console.log('-->> ERROR: ', e)
             },

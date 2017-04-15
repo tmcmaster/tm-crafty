@@ -11,6 +11,12 @@
         border: solid lightgrey 1px;
       }
     </style>
+
+    <iron-ajax auto
+      url="[[assetDefinition]]"
+      handle-as="json"
+      last-response="{{assets}}"></iron-ajax>
+
     <div id="game"></div>
     <content id="content"/>
   </template>
@@ -22,14 +28,13 @@
           width: { type:Number, notify:true },
           height: { type:Number, notify:true },
           gravity: { type: Number, notify: true },
-          assets: { type: Object, notify: true },
-          animate: { type: Object, notify: true },
-          collision: { type: Object, notify: true }
+          assetDefinition: { type: String, notify: true },
+          assets: { type: Object, notify: true }
         },
         observers: [
-          'debug(prop)',
+          '_debug(assets)',
           '_setGravity(gravity)',
-            '_loadAssets(assets)'
+          '_loadSprites(assets.sprites)'
         ],
         listeners: {
           'tm-crafty-block-created': '_blockCreated'
@@ -49,11 +54,11 @@
             element.gravityConst = self.gravity;
           });
         },
-        _loadAssets: function(assets) {
-          console.log('Loading Assets');
+        _loadSprites: function(sprites) {
+          console.log('Loading Sprites');
           const self = this;
           Crafty.load({
-            sprites : assets
+            sprites : sprites
           }, function() {
             console.log('TM-CRAFTY-APP: Sprites have been loaded.');
             self.querySelectorAll('tm-crafty-block').forEach(function(element) {
@@ -65,10 +70,7 @@
             console.log('TM-CRAFTY-APP: There was a problem loading sprites.', e);
           });
         },
-        getISO: function() {
-          return this.iso;
-        },
-        debug: function(object) {
+        _debug: function(object) {
           console.log(object);
         },
         ready: function() {

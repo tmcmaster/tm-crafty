@@ -14,55 +14,79 @@
         is: 'tm-crafty-block',
         properties: {
           assets: { type: Boolean, notify: true, value: false },
-          //app: { type: Object, notify: true},
-          type: { type: String, notify: true, observer: '_typeChanged' },
+          type: { type: String, notify: true },
+          direction: { type: String, notify: true, value: 'north' },
+          sprite: {
+            type: String, notify: true,
+            computed: '_computeSprite(type,direction,moveable)',
+            observer: '_spriteChanged'
+          },
+          reel: { type: Object, notify: true},
           block: { type: Object, notify: true },
           x: { type: Number, notify: true },
           y: { type: Number, notify: true },
           draggable: { type: Boolean, notify: true },
-          moveable: { type: Boolean, notify: true },
+          moveable: { type: Boolean, notify: true,value:  false },
           gravity: { type: Boolean, notify: true },
           solid: { type: Boolean, notify: true },
-          direction: { type: String, notify: true },
           gravityConst: { type: Number, notify: true, value: 30 }
         },
         listeners: {
           'tm-crafty-assets-loaded': '_assetsLoaded'
         },
         observers: [
-          'debug(draggable)',
+          '_debug(direction)',
           '_setDraggable(block,draggable)',
-          '_setType(block,assets,type)',
+          '_setSprite(block,assets,sprite,type,moveable,direction)',
           '_setMoveable(block,moveable)',
           '_setSolid(block,solid)',
           '_setGravity(block,gravity,gravityConst)',
           '_directionChanged(block,direction)'
         ],
+        _computeSprite: function(type,direction,moveable) {
+          return type + '_' + direction + '_1';
+        },
         _assetsLoaded: function() {
           console.log('Block can now be created.');
         },
         _directionChanged: function(block,direction) {
-
+          console.log('Direction Changed: ' + direction);
+          // if (block.reel) {
+          //   console.log('Changing Reel: ' + direction);
+          //   block.reel('PlayerRunning', 1000, [[0, 3], [1, 3], [2, 3], [3, 3]]).animate('PlayerRunning', -1);
+          // }
         },
-        _setType: function(block,assets,type) {
+        _setSprite: function(block,assets,sprite,type,moveable,direction) {
           if (assets) {
-            block.addComponent(type);
-            const collision = this._getCollision(type);
+            block.addComponent(sprite);
+            if (moveable) {
+              block.addComponent('SpriteAnimation');
+              console.log('Changing Reel: ' + direction);
+              const reel = this._getReel(type, direction);
+              block.pauseAnimation();
+              block.reel(sprite, 1000, reel).animate(sprite, -1);
+            }
+            const collision = this._getCollision(sprite);
             if (collision) {
-              block.addComponent('WiredHitBox,Collision')
-                .debugStroke('red')
-                .collision(collision);
+              block.addComponent('Collision').collision(collision);
+              //block.addComponent('WiredHitBox').debugStroke('red');
             }
           }
         },
-        _typeChanged: function(newType,oldType) {
-          console.log('Block type changed: ', oldType, newType);
+        _getReel: function(type, direction) {
+          const animation = this.parentElement.assets.types[type].walk[direction];
+          const reel = this.parentElement.assets.animate[animation].reel;
+          console.log('Changing reel: ', animation, reel );
+          return reel;
+        },
+        _spriteChanged: function(newSprite,oldSprite) {
+          console.log('Block sprite changed: ', oldSprite, newSprite);
           if (this.block !== undefined && this.assets) {
-            if (newType !== undefined && newType !== '') {
-              if (oldType !== undefined && oldType !== '') {
-                this.block.removeComponent(oldType);
+            if (newSprite !== undefined && newSprite !== '') {
+              if (oldSprite !== undefined && oldSprite !== '') {
+                this.block.removeComponent(oldSprite);
               }
-              this._setType(this.block,this.assets,newType);
+              this._setSprite(this.block,this.assets,newSprite,this.type,this.moveable,this.direction);
             }
           }
         },
@@ -70,8 +94,22 @@
           if (moveable) {
             block.addComponent('Fourway,Collision')
                   .fourway(200).checkHits('solid');
+            const self = this;
+            block.bind('NewDirection', function(e) {
+              if (e.x < 0) {
+                self.set('direction', 'west');
+              } else if (e.x > 0) {
+                self.set('direction', 'east');
+              } else if (e.y < 0) {
+                self.set('direction', 'north');
+              } else if (e.y > 0) {
+                self.set('direction', 'south');
+              } else {
+                console.log('--->>> Stop animation');
+              }
+            });
             block.bind('Moved', function(evt) {
-              console.log('------ DIR: ', evt);
+              //console.log('------ DIR: ', evt);
               var hitDatas, hitData;
               hitDatas = this.hit('solid')
               if (hitDatas) {
@@ -87,29 +125,9 @@
             });
           }
         },
-        _calculateDirection: function(axis, oldValue) {
-          var dir = undefined;
-          if (axis === 'y') {
-            if (oldValue < this.y) {
-              dir = 'north';
-            } else if (oldValue > this.y) {
-              dir = 'south';
-            }
-          }
-          if (axis === 'x') {
-            if (oldValue < this.x) {
-              dir = 'west';
-            } else if (oldValue > this.x) {
-              dir = 'east';
-            }
-          }
-          if (dir !== undefined && dir !== this.direction) {
-            this.set('direction', dir);
-          }
-        },
         _getCollision: function(type) {
-          console.log(this.parentElement.collision);
-          return this.parentElement.collision[type];
+          console.log(this.parentElement.assets.collision);
+          return this.parentElement.assets.collision[type];
         },
         _setDraggable: function(block,draggable) {
           if (draggable) {
@@ -141,14 +159,14 @@
             block.removeComponent('Gravity');
           }
         },
-        debug: function(object) {
-          console.log('DEBUG: ', object);
+        _debug: function(object) {
+          console.log('DEBUG TM-CRAFTY_BLOCK: ', object);
         },
         ready: function() {
           console.log('Element tm-crafty-block has been created: ');
           this.block = Crafty.e("2D,DOM");
           if (this.type !== undefined && this.type !== '') {
-            this._typeChanged(this.type,undefined);
+            this._spriteChanged(this.type,undefined);
           }
           this.fire('tm-crafty-block-created', this);
         }
