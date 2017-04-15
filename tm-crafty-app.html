@@ -45,7 +45,7 @@
           const block = e.detail.block;
           const x = e.detail.x;
           const y = e.detail.y;
-          block.attr({x:x*128,y:y*128});
+          block.attr({x:x*128,y:y*128,z:y*128});
           //this.iso.place(x, y, 0, block);
         },
         _setGravity: function(gravity) {
@@ -80,10 +80,17 @@
           this.iso = Crafty.isometric.size(128);
           const self = this;
 
-          const ent = Crafty.e('solid, Collision,WiredHitBox, 2D, Canvas, Color, Draggable, AngularMotion, DebugRectangle')
-            .attr({x: 200, y: 350, w: 250, h: 10})
-            .debugStroke('red')
-            .color('green');
+          Crafty.e('solid, Collision, 2D, Canvas, Color')
+            .attr({x: 0, y: this.height-10, w: this.width, h: 10}).color('green');
+          Crafty.e('solid, Collision, 2D, Canvas, Color')
+            .attr({x: 0, y: 0, w: this.width, h: 10}).color('green');
+          Crafty.e('solid, Collision, 2D, Canvas, Color')
+            .attr({x: 0, y: 10, w: 10, h: this.height-20}).color('green');
+          Crafty.e('solid, Collision, 2D, Canvas, Color')
+            .attr({x: this.width-10, y: 10, w: 10, h: this.height-20}).color('green');
+
+          Crafty.e('solid, Collision, 2D, Canvas')
+            .attr({x: 0, y: 60, w: this.width, h: 10});
 
           // this.addEventListener('tm-crafty-block-created', function(element) {
           //   console.log('------ Block Created: ', element.detail);

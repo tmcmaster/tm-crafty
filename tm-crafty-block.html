@@ -61,10 +61,11 @@
             block.addComponent(sprite);
             if (moveable) {
               block.addComponent('SpriteAnimation');
-              console.log('Changing Reel: ' + direction);
+              console.log('Changing Sprite direction: ' + direction);
               const reel = this._getReel(type, direction);
               block.pauseAnimation();
               block.reel(sprite, 1000, reel).animate(sprite, -1);
+              block.resumeAnimation();
             }
             const collision = this._getCollision(sprite);
             if (collision) {
@@ -76,7 +77,7 @@
         _getReel: function(type, direction) {
           const animation = this.parentElement.assets.types[type].walk[direction];
           const reel = this.parentElement.assets.animate[animation].reel;
-          console.log('Changing reel: ', animation, reel );
+          //console.log('Changing reel: ', animation, reel );
           return reel;
         },
         _spriteChanged: function(newSprite,oldSprite) {
@@ -96,6 +97,7 @@
                   .fourway(200).checkHits('solid');
             const self = this;
             block.bind('NewDirection', function(e) {
+              self.block.z = self.block.y;
               if (e.x < 0) {
                 self.set('direction', 'west');
               } else if (e.x > 0) {
@@ -106,6 +108,7 @@
                 self.set('direction', 'south');
               } else {
                 console.log('--->>> Stop animation');
+                block.pauseAnimation();
               }
             });
             block.bind('Moved', function(evt) {
@@ -126,7 +129,7 @@
           }
         },
         _getCollision: function(type) {
-          console.log(this.parentElement.assets.collision);
+          //console.log(this.parentElement.assets.collision);
           return this.parentElement.assets.collision[type];
         },
         _setDraggable: function(block,draggable) {
@@ -162,12 +165,21 @@
         _debug: function(object) {
           console.log('DEBUG TM-CRAFTY_BLOCK: ', object);
         },
+        _setupAnimation: function() {
+          // WIP
+          const animationDefinitionMap = this.parentElement.assets.animate;
+          Object.keys(animationDefinitionMap).forEach(function(animationName) {
+            const animationDefinition = animationDefinitionMap[animationName];
+
+          });
+        },
         ready: function() {
           console.log('Element tm-crafty-block has been created: ');
           this.block = Crafty.e("2D,DOM");
           if (this.type !== undefined && this.type !== '') {
             this._spriteChanged(this.type,undefined);
           }
+
           this.fire('tm-crafty-block-created', this);
         }
       });
